@@ -21,7 +21,7 @@ import type { AuthRequest } from "../types/other.interface.js";
 const options: CookieOptions = {
   httpOnly: true,
   secure: true,
-  expires: new Date(Date.now() + 7 * 24 * 36000),
+  expires: new Date(Date.now() + 72 * 36000),
 };
 
 const generate_AccessToken_RefreshToken = async function (

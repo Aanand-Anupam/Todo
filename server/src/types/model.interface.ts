@@ -22,17 +22,34 @@ export interface IUserModel extends Model<IUser> {
 
 type Status = "DONE" | "MISSED" | "UPCOMING";
 
-export interface ITodoItem {
+export interface ITodo_Basic_DB {
+  // How Todo will stored inside document...
   type: "text" | "audio";
   content?: string;
   url?: string;
   public_id?: string;
   status: "DONE" | "MISSED" | "UPCOMING";
   order: number;
+  fieldName?: string;
+}
+
+export interface ITodoItem_DB extends ITodo_Basic_DB {
+  // When retrived from db we will get data in this format....
+  _id?: Types.ObjectId;
+}
+
+export interface ITodo_Input {
+  // user - input will come in this format....
+  type: "text" | "audio";
+  content?: string;
+  status: "DONE" | "MISSED" | "UPCOMING";
+  order: number;
+  fieldName?: string; // THis will be used to match audio files ...
 }
 
 export interface ITodo extends Document {
-  items: ITodoItem[];
+  todoName: string;
+  items: ITodoItem_DB[];
   creator: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;

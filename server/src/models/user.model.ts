@@ -56,7 +56,7 @@ userSchema.methods.generateAccessToken = function () {
     },
     ACCESS_KEY,
     {
-      expiresIn: "15m",
+      expiresIn: "5h",
     },
   );
   return accessToken;

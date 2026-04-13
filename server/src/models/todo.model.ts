@@ -1,8 +1,14 @@
-import mongoose, { mongo, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import type { ITodo } from "../types/model.interface.js";
 
 const todoSchema = new Schema<ITodo>(
   {
+    todoName: {
+      type: String,
+      required: true,
+      unique: true,
+      default: new Date().toDateString(),
+    },
     items: [
       {
         type: {
@@ -29,7 +35,7 @@ const todoSchema = new Schema<ITodo>(
     ],
 
     creator: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },

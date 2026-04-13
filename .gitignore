@@ -10,6 +10,7 @@ node_modules/
 # Ignore build files
 dist/
 build/
+.env
 
 # Ignore OS clutter
 .DS_Store
