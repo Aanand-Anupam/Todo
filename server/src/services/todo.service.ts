@@ -23,16 +23,17 @@ export const todoServices = {
         todo_item = {
           type: "text",
           content: item.content as string,
-          status: "UPCOMING",
+          status: item.status,
           order: item.order,
         };
         items.push(todo_item);
       } else if (item.type === "audio") {
+        if (!item.fieldName) continue;
         const local_file_path = uploaded.find(
           (file) => file.fieldname === item.fieldName,
         )?.path;
         if (!local_file_path) continue;
-        console.log("Local path: ", local_file_path);
+        // console.log("Local path: ", local_file_path);
         const uploades_res = await uploadOnCloudinary(local_file_path);
         if (!uploades_res)
           throw new ApiError(
@@ -43,8 +44,9 @@ export const todoServices = {
           type: "audio",
           url: uploades_res.secure_url,
           public_id: uploades_res.public_id,
-          status: "UPCOMING",
+          status: item.status,
           order: item.order,
+          fieldName: item.fieldName,
         };
         items.push(todo_item);
       }
@@ -59,27 +61,45 @@ export const todoServices = {
     uploaded_files: Express.Multer.File[],
   ) {
     // Remove deleted-data:
+    // console.log("deleted_items: ", deleted_item);
 
-    old_todo_list.filter(
-      (old) => old._id && !deleted_item.includes(old._id.toString()),
-    );
-
+    for (let del_id of deleted_item) {
+      let id_to_del = old_todo_list.find((f) => f._id?.toString() == del_id);
+      if (!id_to_del) {
+        continue;
+      }
+      if (id_to_del.type == "audio") {
+        // console.log("Public_id: ", id_to_del.public_id);
+        await deleteFromCloudinary(id_to_del.public_id as string);
+      }
+      old_todo_list = old_todo_list.filter(
+        (old) => old._id && old._id.toString() != del_id,
+      );
+    }
+    // console.log("old_todo_list: ", old_todo_list);
     // update_item:
     // let new_todo_list: ITodo_Basic_DB[] = [];
     for (let item of update_item) {
-      let old_item = old_todo_list.find((file) => file._id === item._id);
+      let old_item = old_todo_list.find(
+        (file) => file._id?.toString() === item._id?.toString(),
+      );
 
       if (!old_item) continue;
-
+      // console.log("Found: ");
       if (item.type === "text" && old_item) {
         old_item.content = item.content as string;
         old_item.status = item.status;
         old_item.order = item.order;
       } else if (item.type === "audio") {
         const old_file_id = old_item.public_id;
+        // console.log("uploaded_files: ", uploaded_files);
+        // console.log("item: ", item);
         const new_file_path = uploaded_files.find(
-          (file) => file.fieldname === item.fieldName,
+          (file) => file.fieldname === old_item.fieldName,
         )?.path;
+        // console.log(
+        //   `old_file_path: ${old_file_id} , new_file_path: ${new_file_path}`,
+        // );
         if (!old_file_id || !new_file_path) continue;
         const new_file_uploaded = await this.replaceFileService(
           new_file_path,

@@ -3,6 +3,7 @@ import type { ITodo } from "../types/model.interface.js";
 
 const todoSchema = new Schema<ITodo>(
   {
+    // Here ITodo just represent how data will look like post document creation...
     todoName: {
       type: String,
       required: true,
@@ -21,15 +22,17 @@ const todoSchema = new Schema<ITodo>(
         url: { type: String },
         public_id: { type: String },
         status: {
-          type: {
-            type: String,
-            enum: ["DONE", "MISSED", "UPCOMING"],
-            default: "UPCOMING",
-          },
+          type: String,
+          enum: ["DONE", "MISSED", "UPCOMING"],
+          default: "UPCOMING",
+          required: true,
         },
         order: {
           type: Number,
           required: true,
+        },
+        fieldName: {
+          type: String,
         },
       },
     ],

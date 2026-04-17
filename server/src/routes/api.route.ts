@@ -6,4 +6,4 @@ import { authenticate } from "../middleware/authenticate.js";
 export const apiRoute = Router();
 
 apiRoute.use("/user", userRoute);
-apiRoute.use("/todo", todoRouter);
+apiRoute.use("/todo", authenticate, todoRouter);

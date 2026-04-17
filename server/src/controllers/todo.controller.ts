@@ -15,12 +15,17 @@ import { todoServices } from "../services/todo.service.js";
 
 export const todoController = {
   createTodo: async function (req: AuthRequest, res: Response) {
-    // console.log("All well here createTodo");
     const _id = req.userId;
     if (!_id) {
       throw new ApiError(500, "No userId found in createTodo");
     }
     const todoName = req.body.todoName;
+
+    const existed_Todo = await Todo.findOne({ todoName });
+    if (existed_Todo) {
+      throw new ApiError(400, "Same todoName exist");
+    }
+
     const uploaded = req.files as Express.Multer.File[];
 
     const item_order: ITodo_Input[] = JSON.parse(req.body.order);
@@ -29,20 +34,22 @@ export const todoController = {
       item_order,
       uploaded,
     );
-
+    // console.log("items: ", items);
     const todo_document = await Todo.create({
       todoName,
       items,
       creator: _id,
     });
+    // Problem : Status is not getting saved in document...
     if (!todo_document) {
       throw new ApiError(500, "Not able create Todo");
     }
 
     successRes(res, "Data saved..", 200, { todo_document });
   },
+
   updateTodo: async function (req: AuthRequest, res: Response) {
-    console.log("Inside updateTodo");
+    // console.log("Inside updateTodo");
     const _id = req.userId;
     if (!_id) {
       throw new ApiError(500, "No userId found inside updateTodo");
@@ -59,14 +66,18 @@ export const todoController = {
     if (_id.toString() !== old_todo_obj.creator.toString()) {
       throw new ApiError(402, "You are not allowed to perform this action");
     }
+    // console.log("Owner is requesting for change. ");
 
     let old_todo_list: ITodoItem_DB[] = old_todo_obj.items;
 
     const uploaded_files = req.files as Express.Multer.File[];
 
-    const updated_item: ITodoItem_DB[] = JSON.parse(req.body.update_item);
-    const new_item: ITodo_Input[] = JSON.parse(req.body.new_item);
-    const deleted_item: string[] = JSON.parse(req.body.deleted_item);
+    const updated_item: ITodoItem_DB[] = JSON.parse(
+      req.body.update_item || "[]",
+    );
+    const new_item: ITodo_Input[] = JSON.parse(req.body.new_item || "[]");
+    const deleted_item: string[] = JSON.parse(req.body.deleted_item || "[]");
+    // console.log("Calling update Service method ");
 
     const new_todo_list: ITodoItem_DB[] = await todoServices.updateServices(
       old_todo_list,
@@ -76,6 +87,13 @@ export const todoController = {
       uploaded_files,
     );
     old_todo_obj.items = new_todo_list;
+    // console.log("Update service has done its work.");
+
+    const updated_old_todo = await old_todo_obj.save({
+      validateModifiedOnly: true,
+    });
+
+    return successRes(res, "Done Dana Done...", 200, updated_old_todo);
   },
   deleteTodo: async function () {},
   getTodo: async function () {},

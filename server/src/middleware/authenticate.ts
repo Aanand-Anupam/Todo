@@ -9,13 +9,14 @@ export const authenticate = function (
   res: Response,
   next: NextFunction,
 ) {
-  console.log("req: ", req.headers["authorization"]);
+  // console.log("req: ", req.headers["authorization"]);
   const accessToken = req.headers["authorization"];
   if (!accessToken) {
     throw new ApiError(401, "Un-Authorized access");
   }
   const { validation: _id } = verifyToken(accessToken, ACCESS_KEY);
+
   req.userId = _id._id;
-  console.log("Attaching userId with req. ");
+  // console.log("Attaching userId with req. ");
   next();
 };

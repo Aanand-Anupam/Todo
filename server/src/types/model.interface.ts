@@ -20,8 +20,6 @@ export interface IUserModel extends Model<IUser> {
   findExistingUser(userName: string, email: string): Promise<IUser | null>;
 }
 
-type Status = "DONE" | "MISSED" | "UPCOMING";
-
 export interface ITodo_Basic_DB {
   // How Todo will stored inside document...
   type: "text" | "audio";
