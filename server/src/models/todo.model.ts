@@ -42,6 +42,15 @@ const todoSchema = new Schema<ITodo>(
       ref: "User",
       required: true,
     },
+    deleteStatus: {
+      type: String,
+      enum: ["PENDING", "ACTIVE", "FAILED"],
+      default: "ACTIVE",
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

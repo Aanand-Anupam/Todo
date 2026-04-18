@@ -21,7 +21,7 @@ export const todoController = {
     }
     const todoName = req.body.todoName;
 
-    const existed_Todo = await Todo.findOne({ todoName });
+    const existed_Todo = await Todo.findOne({ todoName, creator: _id });
     if (existed_Todo) {
       throw new ApiError(400, "Same todoName exist");
     }
@@ -54,11 +54,11 @@ export const todoController = {
     if (!_id) {
       throw new ApiError(500, "No userId found inside updateTodo");
     }
-    const todoName = req.params.todoName;
-    if (!todoName) {
+    const todoId = req.params.todoId;
+    if (!todoId) {
       throw new ApiError(400, "provide valid route");
     }
-    const old_todo_obj = await Todo.findOne({ todoName });
+    const old_todo_obj = await Todo.findById({ todoId });
 
     if (!old_todo_obj) {
       throw new ApiError(400, "Provide valid route");
@@ -95,6 +95,50 @@ export const todoController = {
 
     return successRes(res, "Done Dana Done...", 200, updated_old_todo);
   },
-  deleteTodo: async function () {},
-  getTodo: async function () {},
+  deleteTodo: async function (req: AuthRequest, res: Response) {
+    const _id = req.userId;
+    if (!_id) {
+      throw new ApiError(500, "No userId found inside deleteTodo");
+    }
+    const todoId = req.params.todoId;
+    if (!todoId) {
+      throw new ApiError(400, "select valid todo");
+    }
+    const todo = await Todo.findOne({ _id: todoId, creator: _id });
+    if (!todo) {
+      throw new ApiError(400, "No such todo was found!");
+    }
+    if (todo.creator.toString() !== _id.toString()) {
+      throw new ApiError(401, "User and creator are different");
+    }
+    todo.deleteStatus = "PENDING";
+    todo.deletedAt = new Date();
+    await todo.save({ validateModifiedOnly: true });
+
+    successRes(res, "Todo deleted request placed.", 200);
+  },
+  getTodos: async function (req: AuthRequest, res: Response) {
+    const _id = req.userId;
+    if (!_id) {
+      throw new ApiError(500, "id not found inside getTodos");
+    }
+    const todos = await Todo.find({ creator: _id });
+
+    return successRes(res, "Here are all todos", 200, todos);
+  },
+  getTodo: async function (req: AuthRequest, res: Response) {
+    const _id = req.userId;
+    if (!_id) {
+      throw new ApiError(500, "No id was found in getTodo");
+    }
+    const todoId = req.params.todoId;
+    if (!todoId) {
+      throw new ApiError(400, "Provide valid todoId");
+    }
+    const todo = await Todo.findById({ todoId });
+    if (!todo) {
+      throw new ApiError(400, "No todo was found in db");
+    }
+    return successRes(res, "Here is the todo", 200, todo);
+  },
 };

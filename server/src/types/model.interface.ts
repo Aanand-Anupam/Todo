@@ -51,4 +51,6 @@ export interface ITodo extends Document {
   creator: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
+  deleteStatus: "PENDING" | "ACTIVE" | "FAILED";
+  deletedAt: Date;
 }
