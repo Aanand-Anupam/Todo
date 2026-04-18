@@ -54,11 +54,12 @@ export const todoController = {
     if (!_id) {
       throw new ApiError(500, "No userId found inside updateTodo");
     }
-    const todoId = req.params.todoId;
+    const todoId = req.params.todoId as string;
     if (!todoId) {
       throw new ApiError(400, "provide valid route");
     }
-    const old_todo_obj = await Todo.findById({ todoId });
+
+    const old_todo_obj = await Todo.findOne({ _id: todoId });
 
     if (!old_todo_obj) {
       throw new ApiError(400, "Provide valid route");
