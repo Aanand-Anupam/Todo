@@ -34,6 +34,11 @@ const todoSchema = new Schema<ITodo>(
         fieldName: {
           type: String,
         },
+        important: {
+          type: Boolean,
+          required: true,
+          default: false,
+        },
       },
     ],
 

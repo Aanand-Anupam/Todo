@@ -25,6 +25,7 @@ export const todoServices = {
           content: item.content as string,
           status: item.status,
           order: item.order,
+          important: item.important,
         };
         items.push(todo_item);
       } else if (item.type === "audio") {
@@ -47,6 +48,7 @@ export const todoServices = {
           status: item.status,
           order: item.order,
           fieldName: item.fieldName,
+          important: item.important,
         };
         items.push(todo_item);
       }
@@ -60,9 +62,6 @@ export const todoServices = {
     deleted_item: string[],
     uploaded_files: Express.Multer.File[],
   ) {
-    // Remove deleted-data:
-    // console.log("deleted_items: ", deleted_item);
-
     for (let del_id of deleted_item) {
       let id_to_del = old_todo_list.find((f) => f._id?.toString() == del_id);
       if (!id_to_del) {
@@ -76,9 +75,7 @@ export const todoServices = {
         (old) => old._id && old._id.toString() != del_id,
       );
     }
-    // console.log("old_todo_list: ", old_todo_list);
-    // update_item:
-    // let new_todo_list: ITodo_Basic_DB[] = [];
+
     for (let item of update_item) {
       let old_item = old_todo_list.find(
         (file) => file._id?.toString() === item._id?.toString(),
@@ -90,6 +87,7 @@ export const todoServices = {
         old_item.content = item.content as string;
         old_item.status = item.status;
         old_item.order = item.order;
+        old_item.important = item.important;
       } else if (item.type === "audio") {
         const old_file_id = old_item.public_id;
         // console.log("uploaded_files: ", uploaded_files);
@@ -109,6 +107,7 @@ export const todoServices = {
         old_item.status = item.status;
         old_item.public_id = new_file_uploaded.public_id;
         old_item.url = new_file_uploaded.secure_url;
+        old_item.important = item.important;
       }
     }
 
@@ -121,6 +120,7 @@ export const todoServices = {
           content: item.content as string,
           status: "UPCOMING",
           order: item.order,
+          important: item.important,
         };
         old_todo_list.push(temp_item);
       } else if (item.type === "audio") {
@@ -142,6 +142,7 @@ export const todoServices = {
           order: item.order,
           public_id: uploaded_res.public_id,
           fieldName: item.fieldName as string,
+          important: item.important,
         };
         old_todo_list.push(temp_item);
       }

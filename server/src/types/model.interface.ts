@@ -29,6 +29,7 @@ export interface ITodo_Basic_DB {
   status: "DONE" | "MISSED" | "UPCOMING";
   order: number;
   fieldName?: string;
+  important: boolean;
 }
 
 export interface ITodoItem_DB extends ITodo_Basic_DB {
@@ -43,6 +44,7 @@ export interface ITodo_Input {
   status: "DONE" | "MISSED" | "UPCOMING";
   order: number;
   fieldName?: string; // THis will be used to match audio files ...
+  important: boolean;
 }
 
 export interface ITodo extends Document {
