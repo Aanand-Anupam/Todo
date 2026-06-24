@@ -34,6 +34,10 @@ const todoSchema = new Schema<ITodo>(
         fieldName: {
           type: String,
         },
+        completedAt: {
+          type: Date,
+          default: null,
+        },
       },
     ],
 

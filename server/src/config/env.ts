@@ -25,3 +25,7 @@ export const REFRESH_KEY = process.env.REFRESH_KEY!;
 export const CLOUD_NAME = process.env.CLOUD_NAME!;
 export const API_KEY = process.env.API_KEY!;
 export const API_SECRET = process.env.API_SECRET!;
+
+/** Optional — enables GPT-powered summaries on the AI Assistant page */
+export const OPENAI_API_KEY = process.env.OPENAI_API_KEY ?? "";
+export const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-4o-mini";

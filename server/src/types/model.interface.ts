@@ -29,10 +29,10 @@ export interface ITodo_Basic_DB {
   status: "DONE" | "MISSED" | "UPCOMING";
   order: number;
   fieldName?: string;
+  completedAt?: Date;
 }
 
 export interface ITodoItem_DB extends ITodo_Basic_DB {
-  // When retrived from db we will get data in this format....
   _id?: Types.ObjectId;
 }
 

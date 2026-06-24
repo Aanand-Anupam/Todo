@@ -4,13 +4,33 @@ import { Port, DB_NAME, DB_URI } from "./config/env.js";
 import { dbConnection } from "./db/db.connection.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import cookieParser from "cookie-parser";
-import { authenticate } from "./middleware/authenticate.js";
 import { apiRoute } from "./routes/api.route.js";
 import { deleteTodo_worker } from "./workers/deleteTodo.worker.js";
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+];
+
 //Middlewares:
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api", apiRoute);
