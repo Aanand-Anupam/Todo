@@ -71,7 +71,7 @@ export const todoController = {
 
     let old_todo_list: ITodoItem_DB[] = old_todo_obj.items;
 
-    const uploaded_files = Array.isArray(req.files) ? req.files : [];
+    const uploaded_files = req.files as Express.Multer.File[];
 
     const updated_item: ITodoItem_DB[] = JSON.parse(
       req.body.update_item || "[]",
