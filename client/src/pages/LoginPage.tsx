@@ -1,38 +1,38 @@
-import { FormEvent, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Navbar } from '../components/layout/Navbar'
-import { Footer } from '../components/layout/Footer'
-import { useAuth } from '../context/AuthContext'
-import { ApiError } from '../api/client'
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Navbar } from "../components/layout/Navbar";
+import { Footer } from "../components/layout/Footer";
+import { useAuth } from "../context/AuthContext";
+import { ApiError } from "../api/client";
 
 export function LoginPage() {
-  const { login } = useAuth()
-  const navigate = useNavigate()
-  const [userName, setUserName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
       await login({
         userName: userName.trim() || undefined,
         email: email.trim() || undefined,
         password,
-      })
-      navigate('/dashboard')
+      });
+      navigate("/dashboard");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Login failed')
+      setError(err instanceof ApiError ? err.message : "Login failed");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -92,7 +92,7 @@ export function LoginPage() {
             </div>
             <div className="relative">
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -103,7 +103,7 @@ export function LoginPage() {
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute top-1/2 right-4 -translate-y-1/2 text-xs text-zinc-400"
               >
-                {showPassword ? 'Hide' : 'Show'}
+                {showPassword ? "Hide" : "Show"}
               </button>
             </div>
           </div>
@@ -113,13 +113,16 @@ export function LoginPage() {
             disabled={loading}
             className="w-full rounded-md bg-black py-3 text-sm font-semibold tracking-wider text-white uppercase transition hover:bg-zinc-800 disabled:opacity-60"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
         <p className="mt-8 text-center text-sm text-zinc-500">
-          Don&apos;t have an account?{' '}
-          <Link to="/signup" className="font-semibold text-black hover:underline">
+          Don&apos;t have an account?{" "}
+          <Link
+            to="/signup"
+            className="font-semibold text-black hover:underline"
+          >
             Create one
           </Link>
         </p>
@@ -127,5 +130,5 @@ export function LoginPage() {
 
       <Footer compact />
     </div>
-  )
+  );
 }

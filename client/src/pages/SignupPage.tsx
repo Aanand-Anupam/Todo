@@ -1,57 +1,59 @@
-import { FormEvent, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Navbar } from '../components/layout/Navbar'
-import { Footer } from '../components/layout/Footer'
-import { useAuth } from '../context/AuthContext'
-import { ApiError } from '../api/client'
+import { useRef, useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Navbar } from "../components/layout/Navbar";
+import { Footer } from "../components/layout/Footer";
+import { useAuth } from "../context/AuthContext";
+import { ApiError } from "../api/client";
 
 export function SignupPage() {
-  const { register } = useAuth()
-  const navigate = useNavigate()
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { register } = useAuth();
+  const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [userName, setUserName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [avatar, setAvatar] = useState<File | null>(null)
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleAvatarChange = (file: File | null) => {
-    setAvatar(file)
+    setAvatar(file);
     if (file) {
-      setAvatarPreview(URL.createObjectURL(file))
+      setAvatarPreview(URL.createObjectURL(file));
     } else {
-      setAvatarPreview(null)
+      setAvatarPreview(null);
     }
-  }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError("");
 
     if (password.length < 8 || !/\d/.test(password)) {
-      setError('Password must be at least 8 characters with at least one number.')
-      return
+      setError(
+        "Password must be at least 8 characters with at least one number.",
+      );
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
       await register({
         userName: userName.trim(),
         email: email.trim(),
         password,
         avatar: avatar ?? undefined,
-      })
-      navigate('/dashboard')
+      });
+      navigate("/dashboard");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Registration failed')
+      setError(err instanceof ApiError ? err.message : "Registration failed");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -126,7 +128,9 @@ export function SignupPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-xs text-zinc-500">Username</label>
+              <label className="mb-2 block text-xs text-zinc-500">
+                Username
+              </label>
               <input
                 type="text"
                 value={userName}
@@ -152,10 +156,12 @@ export function SignupPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-xs text-zinc-500">Password</label>
+              <label className="mb-2 block text-xs text-zinc-500">
+                Password
+              </label>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -166,7 +172,7 @@ export function SignupPage() {
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute top-1/2 right-4 -translate-y-1/2 text-xs text-zinc-400"
                 >
-                  {showPassword ? 'Hide' : 'Show'}
+                  {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
               <p className="mt-2 text-xs text-zinc-400">
@@ -179,14 +185,17 @@ export function SignupPage() {
               disabled={loading}
               className="flex w-full items-center justify-center gap-2 rounded-md bg-black py-3 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:opacity-60"
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? "Creating account..." : "Create Account"}
               {!loading && <span>→</span>}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-zinc-500">
-            Already have an account?{' '}
-            <Link to="/login" className="font-semibold text-black hover:underline">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="font-semibold text-black hover:underline"
+            >
               Log In
             </Link>
           </p>
@@ -199,5 +208,5 @@ export function SignupPage() {
 
       <Footer />
     </div>
-  )
+  );
 }

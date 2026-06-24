@@ -1,74 +1,75 @@
-import { FormEvent, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { createTodoDocument } from '../../api/todos'
-import { ApiError } from '../../api/client'
-import { useTodos } from '../../context/TodosContext'
+import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import { createTodoDocument } from "../../api/todos";
+import { ApiError } from "../../api/client";
+import { useTodos } from "../../context/TodosContext";
 import {
   createEmptyAudioDraft,
   createEmptyTextDraft,
   validateDrafts,
   type DraftTodoItem,
-} from '../../utils/todoPayload'
-import { DraftItemEditor } from './DraftItemEditor'
+} from "../../utils/todoPayload";
+import { DraftItemEditor } from "./DraftItemEditor";
 
 interface CreateTodoDocumentModalProps {
-  onClose: () => void
+  onClose: () => void;
 }
 
 export function CreateTodoDocumentModal({
   onClose,
 }: CreateTodoDocumentModalProps) {
-  const navigate = useNavigate()
-  const { refreshTodos } = useTodos()
-  const [todoName, setTodoName] = useState('')
+  const navigate = useNavigate();
+  const { refreshTodos } = useTodos();
+  const [todoName, setTodoName] = useState("");
   const [drafts, setDrafts] = useState<DraftTodoItem[]>([
     createEmptyTextDraft(),
-  ])
-  const [error, setError] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  ]);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const updateDraft = (id: string, next: DraftTodoItem) => {
-    setDrafts((current) => current.map((d) => (d.id === id ? next : d)))
-  }
+    setDrafts((current) => current.map((d) => (d.id === id ? next : d)));
+  };
 
   const removeDraft = (id: string) => {
     setDrafts((current) =>
       current.length === 1 ? current : current.filter((d) => d.id !== id),
-    )
-  }
+    );
+  };
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError("");
 
-    const validationError = validateDrafts(drafts)
+    const validationError = validateDrafts(drafts);
     if (validationError) {
-      setError(validationError)
-      return
+      setError(validationError);
+      return;
     }
 
-    setSubmitting(true)
+    setSubmitting(true);
 
     try {
-      const created = await createTodoDocument(todoName, drafts)
-      await refreshTodos()
-      onClose()
+      const created = await createTodoDocument(todoName, drafts);
+      await refreshTodos();
+      onClose();
       if (created?._id) {
-        navigate(`/dashboard/lists/${created._id}`)
+        navigate(`/dashboard/lists/${created._id}`);
       }
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Failed to create list')
+      setError(err instanceof ApiError ? err.message : "Failed to create list");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-zinc-200 bg-white p-6 shadow-xl">
         <h2 className="text-lg font-semibold text-black">New Todo List</h2>
         <p className="mt-1 text-sm text-zinc-500">
-          Create a document with text and audio tasks, like your Postman request.
+          Create a document with text and audio tasks, like your Postman
+          request.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
@@ -106,7 +107,10 @@ export function CreateTodoDocumentModal({
                 <button
                   type="button"
                   onClick={() =>
-                    setDrafts((current) => [...current, createEmptyAudioDraft()])
+                    setDrafts((current) => [
+                      ...current,
+                      createEmptyAudioDraft(),
+                    ])
                   }
                   className="text-xs text-zinc-500 hover:text-black"
                 >
@@ -140,11 +144,11 @@ export function CreateTodoDocumentModal({
               disabled={submitting || !todoName.trim()}
               className="flex-1 rounded-md bg-black py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
             >
-              {submitting ? 'Creating...' : 'Create List'}
+              {submitting ? "Creating..." : "Create List"}
             </button>
           </div>
         </form>
       </div>
     </div>
-  )
+  );
 }
