@@ -9,6 +9,7 @@ import {
   uploadOnCloudinary,
 } from "../utils/cloudinary.js";
 import type {} from "../types/other.interface.js";
+import { applyItemStatusMetadata } from "../utils/todoItem.js";
 
 export const todoServices = {
   CreateService: async function (
@@ -25,15 +26,25 @@ export const todoServices = {
           content: item.content as string,
           status: item.status,
           order: item.order,
-          important: item.important,
+          ...(item.status === "DONE" ? { completedAt: new Date() } : {}),
         };
         items.push(todo_item);
       } else if (item.type === "audio") {
-        if (!item.fieldName) continue;
+        if (!item.fieldName) {
+          throw new ApiError(
+            400,
+            `Audio item at order ${item.order} is missing fieldName`,
+          );
+        }
         const local_file_path = uploaded.find(
           (file) => file.fieldname === item.fieldName,
         )?.path;
-        if (!local_file_path) continue;
+        if (!local_file_path) {
+          throw new ApiError(
+            400,
+            `Missing uploaded file for field "${item.fieldName}"`,
+          );
+        }
         // console.log("Local path: ", local_file_path);
         const uploades_res = await uploadOnCloudinary(local_file_path);
         if (!uploades_res)
@@ -48,7 +59,7 @@ export const todoServices = {
           status: item.status,
           order: item.order,
           fieldName: item.fieldName,
-          important: item.important,
+          ...(item.status === "DONE" ? { completedAt: new Date() } : {}),
         };
         items.push(todo_item);
       }
@@ -62,6 +73,9 @@ export const todoServices = {
     deleted_item: string[],
     uploaded_files: Express.Multer.File[],
   ) {
+    // Remove deleted-data:
+    // console.log("deleted_items: ", deleted_item);
+
     for (let del_id of deleted_item) {
       let id_to_del = old_todo_list.find((f) => f._id?.toString() == del_id);
       if (!id_to_del) {
@@ -75,7 +89,9 @@ export const todoServices = {
         (old) => old._id && old._id.toString() != del_id,
       );
     }
-
+    // console.log("old_todo_list: ", old_todo_list);
+    // update_item:
+    // let new_todo_list: ITodo_Basic_DB[] = [];
     for (let item of update_item) {
       let old_item = old_todo_list.find(
         (file) => file._id?.toString() === item._id?.toString(),
@@ -85,29 +101,27 @@ export const todoServices = {
       // console.log("Found: ");
       if (item.type === "text" && old_item) {
         old_item.content = item.content as string;
-        old_item.status = item.status;
         old_item.order = item.order;
-        old_item.important = item.important;
+        applyItemStatusMetadata(old_item, item.status);
       } else if (item.type === "audio") {
         const old_file_id = old_item.public_id;
-        // console.log("uploaded_files: ", uploaded_files);
-        // console.log("item: ", item);
         const new_file_path = uploaded_files.find(
           (file) => file.fieldname === old_item.fieldName,
         )?.path;
-        // console.log(
-        //   `old_file_path: ${old_file_id} , new_file_path: ${new_file_path}`,
-        // );
-        if (!old_file_id || !new_file_path) continue;
-        const new_file_uploaded = await this.replaceFileService(
-          new_file_path,
-          old_file_id,
-        ); // This fn will remove old_file from cloudinary , upload new_file on cloudinary and return url of uploaded file.
-        old_item.order = item.order;
-        old_item.status = item.status;
-        old_item.public_id = new_file_uploaded.public_id;
-        old_item.url = new_file_uploaded.secure_url;
-        old_item.important = item.important;
+
+        if (old_file_id && new_file_path) {
+          const new_file_uploaded = await this.replaceFileService(
+            new_file_path,
+            old_file_id,
+          );
+          old_item.order = item.order;
+          applyItemStatusMetadata(old_item, item.status);
+          old_item.public_id = new_file_uploaded.public_id;
+          old_item.url = new_file_uploaded.secure_url;
+        } else {
+          old_item.order = item.order;
+          applyItemStatusMetadata(old_item, item.status);
+        }
       }
     }
 
@@ -118,16 +132,27 @@ export const todoServices = {
         temp_item = {
           type: "text",
           content: item.content as string,
-          status: "UPCOMING",
+          status: item.status,
           order: item.order,
-          important: item.important,
+          ...(item.status === "DONE" ? { completedAt: new Date() } : {}),
         };
         old_todo_list.push(temp_item);
       } else if (item.type === "audio") {
+        if (!item.fieldName) {
+          throw new ApiError(
+            400,
+            `Audio item at order ${item.order} is missing fieldName`,
+          );
+        }
         const file_local_file = uploaded_files.find(
           (file) => file.fieldname === item.fieldName,
         )?.path;
-        if (!file_local_file) continue;
+        if (!file_local_file) {
+          throw new ApiError(
+            400,
+            `Missing uploaded file for field "${item.fieldName}"`,
+          );
+        }
         const uploaded_res = await uploadOnCloudinary(file_local_file);
         if (!uploaded_res) {
           throw new ApiError(
@@ -142,7 +167,7 @@ export const todoServices = {
           order: item.order,
           public_id: uploaded_res.public_id,
           fieldName: item.fieldName as string,
-          important: item.important,
+          ...(item.status === "DONE" ? { completedAt: new Date() } : {}),
         };
         old_todo_list.push(temp_item);
       }

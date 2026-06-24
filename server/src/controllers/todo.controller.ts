@@ -26,7 +26,7 @@ export const todoController = {
       throw new ApiError(400, "Same todoName exist");
     }
 
-    const uploaded = req.files as Express.Multer.File[];
+    const uploaded = Array.isArray(req.files) ? req.files : [];
 
     const item_order: ITodo_Input[] = JSON.parse(req.body.order);
 
@@ -71,7 +71,7 @@ export const todoController = {
 
     let old_todo_list: ITodoItem_DB[] = old_todo_obj.items;
 
-    const uploaded_files = req.files as Express.Multer.File[];
+    const uploaded_files = Array.isArray(req.files) ? req.files : [];
 
     const updated_item: ITodoItem_DB[] = JSON.parse(
       req.body.update_item || "[]",

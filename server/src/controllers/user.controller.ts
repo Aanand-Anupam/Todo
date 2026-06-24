@@ -5,6 +5,7 @@ import {
   type CookieOptions,
   type NextFunction,
 } from "express";
+
 import { successRes } from "../utils/response.js";
 import fs from "fs";
 import {
@@ -20,7 +21,8 @@ import type { AuthRequest } from "../types/other.interface.js";
 
 const options: CookieOptions = {
   httpOnly: true,
-  secure: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   expires: new Date(Date.now() + 72 * 36000),
 };
 
@@ -69,7 +71,7 @@ export const userController = {
         "https://res.cloudinary.com/aanand-anupam/image/upload/v1767101069/aobiqgth8xcgxzcpmv0p.jpg";
       let avatar_public_id = "";
       if (avatar_localFile) {
-        const uploaded_res = await uploadOnCloudinary(avatar_localFile.path);
+        const uploaded_res = await uploadOnCloudinary(avatar_localFile.path, "image");
         avatar_url = uploaded_res?.secure_url;
         avatar_public_id = uploaded_res?.public_id;
       }
@@ -198,7 +200,7 @@ export const userController = {
     }
     let uploaded_res, avatar_url: string, avatar_public_id: string;
 
-    uploaded_res = await uploadOnCloudinary(avatar_localFile.path);
+    uploaded_res = await uploadOnCloudinary(avatar_localFile.path, "image");
     avatar_url = uploaded_res?.secure_url;
     avatar_public_id = uploaded_res?.public_id;
     console.log("All good till here...");
