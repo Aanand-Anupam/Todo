@@ -1,4 +1,4 @@
-# Todo Application
+# Do2Done Application
 
 A full-stack web application for managing todos, tasks, and leveraging AI assistance. Built with React, TypeScript, Express, and MongoDB.
 
